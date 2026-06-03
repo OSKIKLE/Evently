@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evently - Stwórz nowe wydarzenie</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f9f9f9; display: flex; justify-content: center; }
+        .app-container { max-width: 1200px; width: 100%; background-color: white; padding-bottom: 40px; }
+
+        .main-content { max-width: 1200px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
+        .form-card { border: 1px solid #e0e0e0; border-radius: 24px; padding: 30px; display: flex; gap: 40px; margin-top: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
+        .form-left { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .form-right { flex: 1; }
+        input, textarea { width: 100%; padding: 12px 20px; border: 1px solid #dddddd; border-radius: 12px; box-sizing: border-box; font-family: sans-serif; outline: none; }
+        textarea { height: 100%; min-height: 250px; resize: none; }
+        .action-buttons { display: flex; justify-content: center; gap: 20px; margin-top: 30px; }
+        .btn-cancel { background: #f0f0f0; color: #333; padding: 12px 30px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container" style="width: 100%; box-sizing: border-box;">
+    <header class="main-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 20px; box-sizing: border-box; margin-top: 15px;">
+        <div style="display: flex; align-items: center; gap: 40px;">
+            <a href="/">
+                <img src="{% static 'logo.png' %}" alt="Evently Logo" class="logo-img" style="height: 40px; cursor: pointer;">
+            </a>
+            <nav class="nav-tabs" style="display: flex; gap: 30px;">
+                <a href="/" class="tab-btn">Strona Główna</a>
+                <a href="/wydarzenia/" class="tab-btn">Wydarzenia</a>
+            </nav>
+        </div>
+
+        <div style="flex-grow: 1; max-width: 500px; margin: 0 40px;">
+            <input type="text" placeholder="Szukaj wydarzeń ..." class="search-bar" style="width: 100%; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 12px; outline: none;">
+        </div>
+
+        <div style="display: flex; align-items: center; min-width: 140px; justify-content: flex-end; position: relative;">
+            {% if user.is_authenticated %}
+                <div class="user-menu-wrapper" style="position: relative; display: inline-block;">
+                    <span id="userMenuBtn" style="font-weight: 700; color: #A200FF; cursor: pointer; padding: 10px 0; display: inline-block; font-size: 15px; letter-spacing: 0.5px; user-select: none;">
+                        {{ user.username }} ▾
+                    </span>
+                    <div id="userDropdown" style="display: none; position: absolute; right: 0; top: 100%; background-color: white; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); min-width: 150px; z-index: 100; padding: 6px 0;">
+    <a href="/moje-wydarzenia/" class="dropdown-item" style="display: block; padding: 10px 16px; color: #333333; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.2s; border-radius: 6px; margin: 0 6px;">
+        Moje wydarzenia
+    </a>
+    
+    <a href="/moje-zapisy/" class="dropdown-item" style="display: block; padding: 10px 16px; color: #333333; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.2s; border-radius: 6px; margin: 0 6px;">
+        Moje zapisy
+    </a>
+
+    <div style="border-top: 1px solid #eeeeee; margin: 6px 0;"></div>
+    
+    <a href="/wyloguj/" class="dropdown-item-logout" style="display: block; padding: 10px 16px; color: #f44336; text-decoration: none; font-size: 14px; font-weight: 600; transition: background 0.2s; border-radius: 6px; margin: 0 6px;">
+        Wyloguj się
+    </a>
+</div>
+                <script>
+                    const menuBtn = document.getElementById('userMenuBtn');
+                    const dropdown = document.getElementById('userDropdown');
+                    if (menuBtn && dropdown) {
+                        menuBtn.addEventListener('click', function(e) { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
+                        document.addEventListener('click', function(e) { if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none'; });
+                    }
+                </script>
+            {% else %}
+                <a href="/logowanie/" class="btn-primary" style="text-decoration: none; padding: 10px 24px; border-radius: 12px; color: white; background-color: #A200FF; font-size: 14px; font-weight: 600;">Zaloguj się</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="main-content">
+    <h2 style="color: #A200FF; margin-left: 20px;">Stwórz nowe wydarzenie</h2>
+    
+    <form method="POST" class="form-card" id="wydarzenieForm">
+        {% csrf_token %}
+        <div class="form-left">
+            <input type="text" name="nazwa" placeholder="Nazwa Wydarzenia ..." required>
+            <input type="text" name="miejsce" placeholder="Miejsce Wydarzenia ..." required>
+            <input type="date" name="data" placeholder="Data (np. 03-06-2026) ..." required>
+        </div>
+        <div class="form-right">
+            <textarea name="opis" placeholder="Opis Wydarzenia ..." required></textarea>
+        </div>
+    </form> <div class="action-buttons">
+        <a href="/moje-wydarzenia/" class="btn-cancel">Anuluj</a>
+        <button type="submit" form="wydarzenieForm" class="btn-primary" style="border:none; cursor:pointer; padding:12px 30px; border-radius:12px; font-weight:600; color:white; background:#A200FF; font-size: 14px;">Zapisz</button>
+    </div>
+</main>
+</div>
+</body>
+</html>

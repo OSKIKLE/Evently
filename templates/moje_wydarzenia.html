@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evently - Moje Wydarzenia</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f9f9f9; display: flex; justify-content: center; }
+        .app-container { max-width: 1200px; width: 100%; background-color: white; }
+        .dropdown-item:hover { background-color: #f5f5f5; }
+        .dropdown-item-logout:hover { background-color: #ffeef0; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="main-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 10px 20px; box-sizing: border-box; margin-top: 15px;">
+        <div style="display: flex; align-items: center; gap: 40px;">
+            <a href="/">
+                <img src="{% static 'logo.png' %}" alt="Evently Logo" class="logo-img" style="height: 40px; cursor: pointer;">
+            </a>
+            <nav class="nav-tabs" style="display: flex; gap: 30px;">
+                <a href="/" class="tab-btn">Strona Główna</a>
+                <a href="/wydarzenia/" class="tab-btn">Wydarzenia</a>
+            </nav>
+        </div>
+
+        <div style="flex-grow: 1; max-width: 500px; margin: 0 40px;">
+            <input type="text" placeholder="Szukaj wydarzeń ..." class="search-bar" style="width: 100%; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 12px; outline: none;">
+        </div>
+
+        <div style="display: flex; align-items: center; min-width: 140px; justify-content: flex-end; position: relative;">
+            {% if user.is_authenticated %}
+                <div class="user-menu-wrapper" style="position: relative; display: inline-block;">
+                    <span id="userMenuBtn" style="font-weight: 700; color: #A200FF; cursor: pointer; padding: 10px 0; display: inline-block; font-size: 15px; letter-spacing: 0.5px; user-select: none;">
+                        {{ user.username }} ▾
+                    </span>
+                    <div id="userDropdown" style="display: none; position: absolute; right: 0; top: 100%; background-color: white; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); min-width: 150px; z-index: 100; padding: 6px 0;">
+                        <a href="/moje-wydarzenia/" class="dropdown-item" style="display: block; padding: 10px 16px; color: #333333; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; margin: 0 6px;">Moje wydarzenia</a>
+                        <div style="border-top: 1px solid #eeeeee; margin: 6px 0;"></div>
+                        <a href="/wyloguj/" class="dropdown-item-logout" style="display: block; padding: 10px 16px; color: #f44336; text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 6px; margin: 0 6px;">Wyloguj się</a>
+                    </div>
+                </div>
+                <script>
+                    const menuBtn = document.getElementById('userMenuBtn');
+                    const dropdown = document.getElementById('userDropdown');
+                    if (menuBtn && dropdown) {
+                        menuBtn.addEventListener('click', function(e) { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
+                        document.addEventListener('click', function(e) { if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) dropdown.style.display = 'none'; });
+                    }
+                </script>
+            {% else %}
+                <a href="/logowanie/" class="btn-primary" style="text-decoration: none; padding: 10px 24px; border-radius: 12px; color: white; background-color: #A200FF; font-size: 14px; font-weight: 600;">Zaloguj się</a>
+            {% endif %}
+        </div>
+    </header>
+
+
+    <main class="main-content" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <a href="/wydarzenia/" style="color: #A200FF; text-decoration: none; font-weight: 700;">Powrót do wydarzeń</a>
+            <a href="{% url 'dodaj_wydarzenie' %}" style="background-color: #A200FF; padding: 12px 24px; border-radius: 12px; color: white; text-decoration: none; font-weight: 600;">Dodaj nowe wydarzenie</a>
+        </div>
+
+        <div class="content-card" style="background: white; border: 1px solid #e0e0e0; border-radius: 24px; padding: 30px; display: flex; flex-direction: column; gap: 20px;">
+    {% for wydarzenie in moje_wydarzenia %}
+    <div style="display: flex; align-items: center; border: 1px solid #e0e0e0; border-radius: 16px; padding: 25px 30px;">
+        
+        <div style="font-weight: 700; margin-right: 60px; flex: 1;">
+            {{ wydarzenie.nazwa }}
+        </div>
+
+        <div style="display: flex; gap: 20px; color: #666; margin-right: 60px;">
+            <span>{{ wydarzenie.data|date:"j F Y" }}</span>
+            <span>{{ wydarzenie.miejsce }}</span>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 20px; margin-left: auto;">
+            <a href="{% url 'usun_wydarzenie' wydarzenie.id %}" 
+               onclick="return confirm('Czy na pewno chcesz usunąć to wydarzenie? Tej operacji nie można cofnąć.');"
+               style="background: #A200FF; border: none; padding: 12px 24px; border-radius: 12px; color: white; text-decoration: none; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; display: inline-block;">
+               Usuń wydarzenie
+            </a>
+        </div>
+    </div>
+
+    <div id="modal-{{ wydarzenie.id }}" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000;">
+        <div style="background:white; width:400px; margin:100px auto; padding:20px; border-radius:12px; position:relative;">
+            <h3>Uczestnicy: {{ wydarzenie.nazwa }}</h3>
+            <ul>
+                {% for zapis in wydarzenie.zapisy.all %}
+                    <li>{{ zapis.uzytkownik.username }}</li>
+                {% empty %}
+                    <li>Brak zapisanych osób.</li>
+                {% endfor %}
+            </ul>
+            <button onclick="zamknijModal('modal-{{ wydarzenie.id }}')" style="background:#A200FF; color:white; border:none; padding:10px; border-radius:8px; cursor:pointer;">Zamknij</button>
+        </div>
+    </div>
+    {% empty %}
+    <div style="text-align: center; color: #888;">Nie masz jeszcze wydarzeń.</div>
+    {% endfor %}
+</div>
+    </main>
+</div>
+</body>
+</html>

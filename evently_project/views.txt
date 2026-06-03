@@ -1,0 +1,73 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.models import User
+from django.shortcuts import render, get_object_or_404
+from .models import Wydarzenie
+
+def strona_glowna(request):
+    return render(request, 'index.html')
+
+def lista_wydarzen(request):
+    return render(request, 'wydarzenia.html')
+
+def ekran_logowania(request):
+    if request.method == 'POST':
+        login_user = request.POST.get('username')
+        haslo_user = request.POST.get('password')
+
+        user = authenticate(request, username=login_user, password=haslo_user)
+
+        if user is not None:
+            login(request, user) 
+            return redirect('home') 
+
+    return render(request, 'logowanie.html')
+
+def ekran_rejestracji(request):
+    blad = None 
+    
+    if request.method == 'POST':
+        login = request.POST.get('username')
+        haslo = request.POST.get('password')
+        powtorz_haslo = request.POST.get('password_confirm')
+        
+        if haslo != powtorz_haslo:
+            blad = "Hasła nie są identyczne!"
+        else:
+            if User.objects.filter(username=login).exists():
+                blad = "Użytkownik o takiej nazwie już istnieje!"
+            else:
+                User.objects.create_user(username=login, password=haslo)
+                return redirect('login')
+
+    return render(request, 'rejestracja.html', {'error': blad})
+
+def moje_wydarzenia(request):
+    if not request.user.is_authenticated:
+        return redirect('login') 
+        
+    return render(request, 'moje_wydarzenia.html')
+
+def stworz_wydarzenie(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
+    return render(request, 'stworz_wydarzenie.html')
+
+def dodaj_wydarzenie(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    return render(request, 'stworz_wydarzenie.html')
+
+def szczegoly_wydarzenia(request, wydarzenie_id):
+    wydarzenie = get_object_or_404(Wydarzenie, pk=wydarzenie_id)
+    return render(request, 'szczegoly_wydarzenia.html', {'wydarzenie': wydarzenie})
+
+def szczegoly_wydarzenia(request, wydarzenie_id):
+    wydarzenie = get_object_or_404(Wydarzenie, pk=wydarzenie_id)
+    return render(request, 'szczegoly_wydarzenia.html', {'wydarzenie': wydarzenie})
+
+def strona_glowna(request):
+    nadchodzace = Wydarzenie.objects.all()[:6] 
+    nowe = Wydarzenie.objects.all().order_by('-id')[:2] 
+    return render(request, 'index.html', {'nadchodzace': nadchodzace, 'nowe_wydarzenia': nowe})

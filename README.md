@@ -9,5 +9,7 @@ konta :
 login:                               hasło:
 
 OSKIKLE                              M1n3cr4ft
+
 Kacper                               1234
+
 Mazdan                               zaq1@WSX

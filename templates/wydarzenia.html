@@ -37,7 +37,13 @@
         </div>
 
         <div style="flex-grow: 1; max-width: 500px; margin: 0 40px;">
-            <input type="text" placeholder="Szukaj wydarzeń ..." class="search-bar" style="width: 100%; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 12px; outline: none;">
+            <form action="{% url 'events' %}" method="GET" style="flex-grow: 1; max-width: 500px; margin: 0 40px;">
+    <input type="text" name="q" placeholder="Szukaj wydarzeń ..." 
+           value="{{ request.GET.q }}"
+           class="search-bar"
+           style="width: 100%; padding: 10px 20px; border: 1px solid #dddddd; border-radius: 12px; outline: none;">
+</form>
+
         </div>
 
         <div style="display: flex; align-items: center; min-width: 140px; justify-content: flex-end; position: relative;">

@@ -1,7 +1,7 @@
 1. wejść do folderu gdzie jest wszystko
 2. prawym odpalić "otwórz w terminalu"
 3. wkleic do terminala : python manage.py runserver
-4. opaclić w przeglądarce http://127.0.0.1:8000/
+4. opalić w przeglądarce http://127.0.0.1:8000/
 
 
 
